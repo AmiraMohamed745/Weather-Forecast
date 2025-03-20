@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">WeatherForecast</string>
+    <string name="today">Today</string>
+    <string name="hourly_details">Hourly Details</string>
+    <string name="daily_details">Daily Details</string>
+    <string name="past_5_days">Past 5 Days</string>
+    <string name="feels_like">Feels like %1$s</string>
+    <string name="sunrise">Sunrise %1$s</string>
+    <string name="sunset">Sunset %1$s</string>
+    <string name="sunset_icon">Sunset icon</string>
+    <string name="sunrise_icon">Sunrise icon</string>
+    <string name="current_weather_icon">Current weather icon</string>
+    <string name="air_pressure_icon">Air pressure icon</string>
+    <string name="wind_speed_icon">Wind speed icon</string>
+    <string name="wind_speed">Wind Speed</string>
+    <string name="pressure">Pressure</string>
+    <string name="clouds_icon">Clouds icon</string>
+    <string name="humidity_icon">Humidity icon</string>
+    <string name="humidity">Humidity</string>
+    <string name="clouds">Clouds</string>
+    <string name="switch_language_icon">Switch language icon</string>
+    <string name="arrow_forward_icon">Arrow forward icon</string>
+    <string name="menu_icon">Menu icon</string>
+</resources>
