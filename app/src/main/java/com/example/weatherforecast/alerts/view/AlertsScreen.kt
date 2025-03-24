@@ -11,6 +11,7 @@ import com.example.weatherforecast.navigation.NavigationRouter
 import com.example.weatherforecast.navigation.viewmodel.NavigationViewModel
 import com.example.weatherforecast.ui.theme.composables.Dimensions
 
+
 @Composable
 fun AlertsScreen(navigationViewModel: NavigationViewModel) {
     Column(
