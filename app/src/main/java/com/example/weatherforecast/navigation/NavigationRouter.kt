@@ -15,6 +15,11 @@ sealed class NavigationRouter {
     object AlertsScreen: NavigationRouter()
 
     @Serializable
+    object SettingAlertScreen: NavigationRouter()
+
+    @Serializable
     object SettingsScreen: NavigationRouter()
 
+    @Serializable
+    object WeatherDetailsScreen: NavigationRouter()
 }

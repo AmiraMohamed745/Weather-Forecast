@@ -1,4 +1,4 @@
-package com.example.weatherforecast.alerts.view
+package com.example.weatherforecast.details.view
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,10 +10,13 @@ import androidx.compose.ui.Modifier
 import com.example.weatherforecast.navigation.NavigationRouter
 import com.example.weatherforecast.navigation.viewmodel.NavigationViewModel
 import com.example.weatherforecast.ui.theme.composables.Dimensions
-
+import com.example.weatherforecast.ui.theme.composables.TextMediumBlack
 
 @Composable
-fun AlertsScreen(navigationViewModel: NavigationViewModel) {
+fun WeatherDetailsScreenForAlerts(
+    alertTitle: String,
+    navigationViewModel: NavigationViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -25,7 +28,7 @@ fun AlertsScreen(navigationViewModel: NavigationViewModel) {
                 end = Dimensions.paddingModerate
             )
     ){
-        navigationViewModel.setCurrentScreen(NavigationRouter.AlertsScreen)
-
+        navigationViewModel.setCurrentScreen(NavigationRouter.WeatherDetailsScreen)
+        TextMediumBlack(alertTitle)
     }
 }

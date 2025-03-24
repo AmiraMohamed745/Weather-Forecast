@@ -26,18 +26,28 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import com.example.weatherforecast.home.view.LocationHelper
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherforecast.database.LocalDataSourceImpl
+import com.example.weatherforecast.utils.location.LocationHelper
 import com.example.weatherforecast.home.view.LocationPermissionAlertDialog
+import com.example.weatherforecast.home.viewmodel.CurrentWeatherFactory
+import com.example.weatherforecast.home.viewmodel.CurrentWeatherViewModel
 import com.example.weatherforecast.model.CurrentWeatherResponse
+import com.example.weatherforecast.model.RepositoryImpl
+import com.example.weatherforecast.network.RemoteDataSourceImpl
 import com.example.weatherforecast.ui.theme.composables.AppScaffold
 import com.example.weatherforecast.utils.Constants
+import com.example.weatherforecast.utils.location.LocationViewModel
 import org.osmdroid.config.Configuration.*
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var locationHelper: LocationHelper
-    private lateinit var locationState: MutableState<Location?>
-    private lateinit var weatherState: MutableState<CurrentWeatherResponse?>
+
+    //private lateinit var locationState: MutableState<Location?>
+    //private lateinit var weatherState: MutableState<CurrentWeatherResponse?>
+    private lateinit var locationViewModel: LocationViewModel
+    private lateinit var currentWeatherViewModel: CurrentWeatherViewModel
 
     private var showLocationPermissionAlertDialog = mutableStateOf(false)
 
@@ -49,76 +59,53 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        locationHelper = LocationHelper(this)
 
+        locationHelper = LocationHelper(this)
 
         setContent {
             WeatherForecastTheme {
+                /*val locationViewModel: LocationViewModel = viewModel()
+                val currentWeatherViewModel: CurrentWeatherViewModel =
+                    viewModel(
+                        factory =
+                            CurrentWeatherFactory(
+                                RepositoryImpl.getInstance(
+                                    RemoteDataSourceImpl(RetrofitHelper.weatherService),
+                                    LocalDataSourceImpl()
+                                )
+                            )
+                    )*/
+
+                locationViewModel = viewModel()
+                currentWeatherViewModel =
+                    viewModel(
+                        factory =
+                            CurrentWeatherFactory(
+                                RepositoryImpl.getInstance(
+                                    RemoteDataSourceImpl(RetrofitHelper.weatherService),
+                                    LocalDataSourceImpl()
+                                )
+                            )
+                    )
+
                 Surface(color = Color.White) {}
-                locationState = remember { mutableStateOf<Location?>(null) }
-                weatherState = remember { mutableStateOf<CurrentWeatherResponse?>(null) }
-              //  showLocationPermissionAlertDialog = rememberSaveable { mutableStateOf(false) }
+                // locationState = remember { mutableStateOf<Location?>(null) }
+                // weatherState = remember { mutableStateOf<CurrentWeatherResponse?>(null) }
                 if (showLocationPermissionAlertDialog.value) {
                     LocationPermissionAlertDialog(
                         onDismissRequest = { showLocationPermissionAlertDialog.value = false },
                         onConfirmation = {
                             enableLocationServices()
+                            //locationViewModel.setCurrentLocation(locationState.value)
                             showLocationPermissionAlertDialog.value = false
                         }
                     )
-                   // showLocationPermissionAlertDialog.value = false
                 }
-                AppScaffold(locationState, weatherState)
+                //AppScaffold(/*locationState,*/ weatherState = weatherState)
+                AppScaffold(/*locationState,*/ locationViewModel = locationViewModel,
+                    currentWeatherViewModel = currentWeatherViewModel
 
-
-                /*SettingsScreen(onLocationOptionsSelected = { option ->
-                    Log.d("MainActivity", "Location option selected: $option")
-                })*/
-                //SettingsScreenWithMapDisplayed()
-                /*HomeScreen(
-                    location = locationState.value,
-                    currentWeatherResponse = weatherState.value,
-                    modifier = Modifier.padding(1.dp)
-                )*/
-                //val scrollBehavior =
-                //  TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-                /*Scaffold(
-                    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-
-                    topBar = {
-                        TopAppBar(
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = Color.White,
-                                titleContentColor = Color.Black,
-                            ),
-                            title = {
-                                Text(
-                                    "Weather Forecast",
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            },
-                            navigationIcon = {
-                                IconButton(onClick = {}) {
-                                    Icon(
-                                        imageVector = Icons.Default.Menu,
-                                        contentDescription = stringResource(R.string.menu_icon)
-                                    )
-                                }
-                            },
-                            scrollBehavior = scrollBehavior
-                        )
-                    },
-
-                ) { contentPadding ->
-                    HomeScreen(
-                        location = locationState.value,
-                        currentWeatherResponse = weatherState.value,
-                        modifier = Modifier.padding(contentPadding)
-                    )
-                }*/
+                )
             }
         }
     }
@@ -129,7 +116,6 @@ class MainActivity : ComponentActivity() {
             if (locationHelper.isLocationEnabled()) {
                 getFreshLocationAndFetchWeather()
             } else {
-                //enableLocationServices()
                 showLocationPermissionAlertDialog.value = true
             }
         } else {
@@ -143,8 +129,13 @@ class MainActivity : ComponentActivity() {
 
     private fun getFreshLocationAndFetchWeather() {
         locationHelper.getFreshLocation { location ->
-            locationState.value = location
-            fetchWeatherData(location)
+            //locationState.value = location
+            locationViewModel.setCurrentLocation(location)
+            currentWeatherViewModel.getCurrentWeatherData(
+                location.latitude.toString(),
+                location.longitude.toString()
+            )
+            //fetchWeatherData(location)
         }
     }
 
@@ -160,17 +151,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun enableLocationServices() {
-        //Toast.makeText(this, "Please enable location services", Toast.LENGTH_LONG).show()
-        /*LocationPermissionAlertDialog {
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            startActivity(intent)
-        }*/
         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         startActivity(intent)
     }
 
-    // Received location: 29.9227137, 31.0597966
-    private fun fetchWeatherData(location: Location) {
+    /*private fun fetchWeatherData(location: Location) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val serviceObj = RetrofitHelper.weatherService
@@ -188,7 +173,7 @@ class MainActivity : ComponentActivity() {
                 Log.e("MainActivity", "Error fetching weather data: ${e.localizedMessage}")
             }
         }
-    }
+    }*/
 }
 
 

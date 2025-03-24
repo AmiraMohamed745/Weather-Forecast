@@ -1,4 +1,4 @@
-package com.example.weatherforecast.home.view
+package com.example.weatherforecast.utils.location
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,7 +7,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
 import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -24,7 +24,7 @@ class LocationHelper(private val context: Context) {
 
     fun isLocationEnabled(): Boolean {
         val locationManager: LocationManager =
-            getSystemService(context, LocationManager::class.java) as LocationManager
+            ContextCompat.getSystemService(context, LocationManager::class.java) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }

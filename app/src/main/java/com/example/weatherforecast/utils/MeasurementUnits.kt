@@ -1,4 +1,4 @@
-package com.example.weatherforecast.model
+package com.example.weatherforecast.utils
 
 enum class MeasurementUnits(val unitParameter: String) {
     KELVIN("standard"),

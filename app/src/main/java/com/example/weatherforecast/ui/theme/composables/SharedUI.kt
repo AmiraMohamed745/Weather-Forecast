@@ -65,6 +65,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.weatherforecast.alerts.view.AlertsScreen
 import com.example.weatherforecast.favorites.view.FavoriteScreen
 import com.example.weatherforecast.R
+import com.example.weatherforecast.alerts.view.SettingAlertScreen
 import com.example.weatherforecast.settings.view.SettingsScreen
 import com.example.weatherforecast.home.view.HomeScreen
 import com.example.weatherforecast.model.CurrentWeatherResponse
@@ -72,56 +73,6 @@ import com.example.weatherforecast.navigation.NavigationRouter
 import com.example.weatherforecast.navigation.viewmodel.NavigationViewModel
 import kotlinx.coroutines.launch
 
-
-@Composable
-fun TextSmallBlack(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodySmall
-    )
-}
-
-@Composable
-fun TextSmallWhite(text: String) {
-    Text(
-        text = text,
-        color = Color.White,
-        style = MaterialTheme.typography.bodySmall
-    )
-}
-
-@Composable
-fun TextMediumBlack(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyMedium
-    )
-}
-
-@Composable
-fun TextMediumWhite(text: String) {
-    Text(
-        text = text,
-        color = Color.White,
-        style = MaterialTheme.typography.bodyMedium
-    )
-}
-
-@Composable
-fun TextLarge(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleLarge
-    )
-}
-
-@Composable
-fun TextExtraLarge(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.headlineLarge
-    )
-}
 
 
 @Composable
@@ -389,7 +340,7 @@ fun NavigationDrawer() {
     ) {}
 }*/
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+/*@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScaffold(
@@ -479,6 +430,7 @@ fun AppScaffold(
                                     NavigationRouter.HomeScreen -> "Home"
                                     NavigationRouter.FavoriteScreen -> "Favorites"
                                     NavigationRouter.AlertsScreen -> "Alerts"
+                                    NavigationRouter.SettingAlertScreen -> "Set Alert"
                                     else -> "Settings"
                                 },
                                 fontSize = 24.sp,
@@ -508,7 +460,10 @@ fun AppScaffold(
                 },
                 floatingActionButton = {
                     if ((currentScreen.value == NavigationRouter.FavoriteScreen) || (currentScreen.value == NavigationRouter.AlertsScreen)) {
-                        FloatingActionButtonUI(navigationViewModel)
+                        FloatingActionButtonUI(
+                            navController = navController,
+                            navigationViewModel = navigationViewModel
+                        )
                     }
                 }
             ) {
@@ -548,18 +503,24 @@ fun NavigationHost(
         composable<NavigationRouter.FavoriteScreen> { FavoriteScreen(navigationViewModel = navigationViewModel) }
         composable<NavigationRouter.AlertsScreen> { AlertsScreen(navigationViewModel = navigationViewModel) }
         composable<NavigationRouter.SettingsScreen> { SettingsScreen(navigationViewModel = navigationViewModel) { } }
+        composable<NavigationRouter.SettingAlertScreen> { SettingAlertScreen(navigationViewModel = navigationViewModel)}
     }
 }
 
 @Composable
-fun FloatingActionButtonUI(navigationViewModel: NavigationViewModel) {
+fun FloatingActionButtonUI(
+    navController: NavController,
+    navigationViewModel: NavigationViewModel
+) {
     val currentScreen = navigationViewModel.currentScreen.observeAsState()
     FloatingActionButton(
         onClick = {
             {
                 when (currentScreen.value) {
                     NavigationRouter.FavoriteScreen -> {} // show map to choose favorite place
-                    else -> {} // add an alert
+                    else -> {
+                        navController.navigate(NavigationRouter.SettingAlertScreen)
+                    } // add an alert
                 }
             }
         },
@@ -570,7 +531,8 @@ fun FloatingActionButtonUI(navigationViewModel: NavigationViewModel) {
             contentDescription = "Floating action button."
         )
     }
-}
+}*/
+
 /*@Composable
 fun DrawerBackHandler(drawerState: DrawerState, scope: CoroutineScope) {
     BackHandler(enabled = drawerState.isOpen) {
@@ -603,11 +565,11 @@ fun BackPressHandler(onBackPressed: () -> Unit) {
 val LocalBackPressedDispatcher =
     staticCompositionLocalOf<OnBackPressedDispatcher> { error("No Back Dispatcher provided") }*/
 
-@Composable
+/*@Composable
 fun ButtonPrimary() {
     Button(onClick = {}) {
         TextSmallBlack("")
     }
-}
+}*/
 
 
