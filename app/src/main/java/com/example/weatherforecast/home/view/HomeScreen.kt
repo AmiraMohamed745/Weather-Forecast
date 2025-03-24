@@ -38,6 +38,7 @@ import com.example.weatherforecast.ui.theme.composables.TextLarge
 import com.example.weatherforecast.ui.theme.composables.TextMediumBlack
 import com.example.weatherforecast.ui.theme.composables.TextSmallBlack
 import com.example.weatherforecast.model.CurrentWeatherResponse
+import com.example.weatherforecast.utils.location.LocationHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
