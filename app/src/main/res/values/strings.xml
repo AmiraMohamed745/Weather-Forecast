@@ -21,4 +21,7 @@
     <string name="switch_language_icon">Switch language icon</string>
     <string name="arrow_forward_icon">Arrow forward icon</string>
     <string name="menu_icon">Menu icon</string>
+    <string name="alert_title">Alert Title</string>
+    <string name="e_g_alert_for_alex_trip">e.g., Alert for Alex trip</string>
+    <string name="title_activity_alert_details_screen">AlertDetailsScreen</string>
 </resources>
