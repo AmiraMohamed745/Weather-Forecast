@@ -4,11 +4,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.weatherforecast.navigation.NavigationRouter
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
+/*
 class NavigationViewModel: ViewModel() {
 
     private val _currentScreen = MutableLiveData<NavigationRouter>(NavigationRouter.HomeScreen)
     val currentScreen: LiveData<NavigationRouter> = _currentScreen
+
+    fun setCurrentScreen(screen: NavigationRouter) {
+        _currentScreen.value = screen
+    }
+}*/
+
+
+class NavigationViewModel: ViewModel() {
+
+    private val _currentScreen = MutableStateFlow<NavigationRouter>(NavigationRouter.HomeScreen)
+    val currentScreen = _currentScreen.asStateFlow()
 
     fun setCurrentScreen(screen: NavigationRouter) {
         _currentScreen.value = screen
