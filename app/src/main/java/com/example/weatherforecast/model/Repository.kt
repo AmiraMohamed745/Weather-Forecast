@@ -8,6 +8,12 @@ interface Repository {
         lat: String,
         lon: String,
         lang: String = "en"
-    ): CurrentWeatherResponse
+    ): Flow<CurrentWeatherResponse>
+
+    suspend fun fetchNextFiveDaysWeatherData(
+        lat: String,
+        lon: String,
+        lang: String = "en"
+    ): Flow<NextFiveDaysWeatherResponse>
 
 }

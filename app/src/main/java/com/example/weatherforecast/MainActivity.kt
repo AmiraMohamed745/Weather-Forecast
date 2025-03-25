@@ -32,8 +32,11 @@ import com.example.weatherforecast.utils.location.LocationHelper
 import com.example.weatherforecast.home.view.LocationPermissionAlertDialog
 import com.example.weatherforecast.home.viewmodel.CurrentWeatherFactory
 import com.example.weatherforecast.home.viewmodel.CurrentWeatherViewModel
+import com.example.weatherforecast.home.viewmodel.NextFiveDaysWeatherFactory
+import com.example.weatherforecast.home.viewmodel.NextFiveDaysWeatherViewModel
 import com.example.weatherforecast.model.CurrentWeatherResponse
 import com.example.weatherforecast.model.RepositoryImpl
+import com.example.weatherforecast.navigation.viewmodel.NavigationViewModel
 import com.example.weatherforecast.network.RemoteDataSourceImpl
 import com.example.weatherforecast.ui.theme.composables.AppScaffold
 import com.example.weatherforecast.utils.Constants
@@ -43,11 +46,10 @@ import org.osmdroid.config.Configuration.*
 class MainActivity : ComponentActivity() {
 
     private lateinit var locationHelper: LocationHelper
-
-    //private lateinit var locationState: MutableState<Location?>
-    //private lateinit var weatherState: MutableState<CurrentWeatherResponse?>
     private lateinit var locationViewModel: LocationViewModel
     private lateinit var currentWeatherViewModel: CurrentWeatherViewModel
+    private lateinit var nextFiveDaysWeatherViewModel: NextFiveDaysWeatherViewModel
+
 
     private var showLocationPermissionAlertDialog = mutableStateOf(false)
 
@@ -64,18 +66,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WeatherForecastTheme {
-                /*val locationViewModel: LocationViewModel = viewModel()
-                val currentWeatherViewModel: CurrentWeatherViewModel =
-                    viewModel(
-                        factory =
-                            CurrentWeatherFactory(
-                                RepositoryImpl.getInstance(
-                                    RemoteDataSourceImpl(RetrofitHelper.weatherService),
-                                    LocalDataSourceImpl()
-                                )
-                            )
-                    )*/
-
                 locationViewModel = viewModel()
                 currentWeatherViewModel =
                     viewModel(
@@ -87,24 +77,40 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                     )
+                nextFiveDaysWeatherViewModel = viewModel(
+                    factory =
+                        NextFiveDaysWeatherFactory(
+                            RepositoryImpl.getInstance(
+                                RemoteDataSourceImpl(RetrofitHelper.weatherService),
+                                LocalDataSourceImpl()
+                            )
+                        )
+                )
 
+                val nextFiveDaysWeatherViewModel: NextFiveDaysWeatherViewModel = viewModel(
+                    factory = NextFiveDaysWeatherFactory(
+                        RepositoryImpl.getInstance(
+                            RemoteDataSourceImpl(RetrofitHelper.weatherService),
+                            LocalDataSourceImpl()
+                        )
+                    )
+                )
+                val navigationViewModel: NavigationViewModel = viewModel()
                 Surface(color = Color.White) {}
-                // locationState = remember { mutableStateOf<Location?>(null) }
-                // weatherState = remember { mutableStateOf<CurrentWeatherResponse?>(null) }
                 if (showLocationPermissionAlertDialog.value) {
                     LocationPermissionAlertDialog(
                         onDismissRequest = { showLocationPermissionAlertDialog.value = false },
                         onConfirmation = {
                             enableLocationServices()
-                            //locationViewModel.setCurrentLocation(locationState.value)
                             showLocationPermissionAlertDialog.value = false
                         }
                     )
                 }
-                //AppScaffold(/*locationState,*/ weatherState = weatherState)
-                AppScaffold(/*locationState,*/ locationViewModel = locationViewModel,
-                    currentWeatherViewModel = currentWeatherViewModel
-
+                AppScaffold(
+                    locationViewModel = locationViewModel,
+                    currentWeatherViewModel = currentWeatherViewModel,
+                    nextFiveDaysWeatherViewModel = nextFiveDaysWeatherViewModel,
+                    navigationViewModel = navigationViewModel
                 )
             }
         }
@@ -129,13 +135,15 @@ class MainActivity : ComponentActivity() {
 
     private fun getFreshLocationAndFetchWeather() {
         locationHelper.getFreshLocation { location ->
-            //locationState.value = location
             locationViewModel.setCurrentLocation(location)
             currentWeatherViewModel.getCurrentWeatherData(
                 location.latitude.toString(),
                 location.longitude.toString()
             )
-            //fetchWeatherData(location)
+            nextFiveDaysWeatherViewModel.getNextFiveDaysWeatherData(
+                location.latitude.toString(),
+                location.longitude.toString()
+            )
         }
     }
 
@@ -154,26 +162,6 @@ class MainActivity : ComponentActivity() {
         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         startActivity(intent)
     }
-
-    /*private fun fetchWeatherData(location: Location) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val serviceObj = RetrofitHelper.weatherService
-                val responseObj: CurrentWeatherResponse = serviceObj.getCurrentWeatherData(
-                    lat = location.latitude.toString(),
-                    lon = location.longitude.toString(),
-                    lang = "en"
-                )
-                Log.i("MainActivity", "Weather API response: $responseObj")
-                withContext(Dispatchers.Main) {
-                    weatherState.value = responseObj
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Log.e("MainActivity", "Error fetching weather data: ${e.localizedMessage}")
-            }
-        }
-    }*/
 }
 
 

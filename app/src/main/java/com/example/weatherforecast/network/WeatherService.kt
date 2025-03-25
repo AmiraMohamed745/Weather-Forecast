@@ -2,6 +2,7 @@ package com.example.weatherforecast.network
 
 import com.example.weatherforecast.utils.Constants
 import com.example.weatherforecast.model.CurrentWeatherResponse
+import com.example.weatherforecast.model.NextFiveDaysWeatherResponse
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -17,6 +18,15 @@ interface WeatherService {
         @Query("units") units: String = Constants.METRIC_UNIT, // If you do not use the units parameter, standard units will be applied by default
         @Query("appid") appid: String = Constants.APP_ID
     ): CurrentWeatherResponse
+
+    @GET("forecast")
+    suspend fun getNextFiveDaysWeatherData(
+        @Query("lat") lat: String,
+        @Query("lon") lon: String,
+        @Query("lang") lang: String,
+        @Query("units") units: String = Constants.METRIC_UNIT, // If you do not use the units parameter, standard units will be applied by default
+        @Query("appid") appid: String = Constants.APP_ID
+    ): NextFiveDaysWeatherResponse
 }
 
 object RetrofitHelper {

@@ -2,6 +2,7 @@ package com.example.weatherforecast.model
 
 import com.example.weatherforecast.database.LocalDataSource
 import com.example.weatherforecast.network.RemoteDataSource
+import kotlinx.coroutines.flow.Flow
 
 class RepositoryImpl private constructor(
     private val remoteDataSource: RemoteDataSource,
@@ -26,7 +27,15 @@ class RepositoryImpl private constructor(
         lat: String,
         lon: String,
         lang: String
-    ): CurrentWeatherResponse {
+    ): Flow<CurrentWeatherResponse> {
         return remoteDataSource.getCurrentWeatherData(lat, lon, lang)
+    }
+
+    override suspend fun fetchNextFiveDaysWeatherData(
+        lat: String,
+        lon: String,
+        lang: String
+    ): Flow<NextFiveDaysWeatherResponse> {
+        return remoteDataSource.getNextFiveDaysWeatherData(lat, lon, lang)
     }
 }
