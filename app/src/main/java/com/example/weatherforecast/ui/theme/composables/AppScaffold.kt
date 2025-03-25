@@ -29,12 +29,16 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,30 +67,32 @@ import com.example.weatherforecast.navigation.viewmodel.NavigationViewModel
 import com.example.weatherforecast.utils.location.LocationViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherforecast.home.viewmodel.CurrentWeatherViewModel
+import com.example.weatherforecast.home.viewmodel.NextFiveDaysWeatherViewModel
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScaffold(
-    //locationState: MutableState<Location?>,
     currentWeatherViewModel: CurrentWeatherViewModel,
     locationViewModel: LocationViewModel,
-    //weatherState: MutableState<CurrentWeatherResponse?>,
+    nextFiveDaysWeatherViewModel: NextFiveDaysWeatherViewModel,
+    navigationViewModel: NavigationViewModel
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val navController = rememberNavController()
-    val navigationViewModel: NavigationViewModel = viewModel()
-    //val locationViewModel: LocationViewModel = viewModel()
-    //val navigationViewModel = NavigationViewModel()
-    //val locationViewModel = LocationViewModel()
+    val snackBarHostState = remember { SnackbarHostState() }
+    //val navigationViewModel: NavigationViewModel = viewModel()
 
-    val currentScreen = navigationViewModel.currentScreen.observeAsState()
+    val currentScreen by navigationViewModel.currentScreen.collectAsStateWithLifecycle()
 
     Box() {
         ModalNavigationDrawer(
@@ -147,10 +153,11 @@ fun AppScaffold(
                         Spacer(Modifier.height(12.dp))
                     }
                 }
-            },
+            }
         ) {
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                snackbarHost = { SnackbarHost(snackBarHostState) },
                 topBar = {
                     TopAppBar(
                         colors = TopAppBarDefaults.topAppBarColors(
@@ -159,7 +166,7 @@ fun AppScaffold(
                         ),
                         title = {
                             Text(
-                                when (currentScreen.value) {
+                                when (currentScreen) {
                                     NavigationRouter.HomeScreen -> "Home"
                                     NavigationRouter.FavoriteScreen -> "Favorites"
                                     NavigationRouter.AlertsScreen -> "Alerts"
@@ -192,15 +199,11 @@ fun AppScaffold(
                     )
                 },
                 floatingActionButton = {
-                    if ((currentScreen.value == NavigationRouter.FavoriteScreen) || (currentScreen.value == NavigationRouter.AlertsScreen)) {
-                        /*FloatingActionButtonUI(
-                            navController = navController,
-                            navigationViewModel = navigationViewModel
-                        )*/
+                    if ((currentScreen == NavigationRouter.FavoriteScreen) || (currentScreen == NavigationRouter.AlertsScreen)) {
                         FloatingActionButtonUI {
-                            if (currentScreen.value == NavigationRouter.FavoriteScreen) {
+                            if (currentScreen == NavigationRouter.FavoriteScreen) {
                                 //
-                            } else if (currentScreen.value == NavigationRouter.AlertsScreen) {
+                            } else if (currentScreen == NavigationRouter.AlertsScreen) {
                                 navController.navigate(NavigationRouter.SettingAlertScreen)
                             }
                         }
@@ -209,12 +212,31 @@ fun AppScaffold(
             ) {
                 NavigationHost(
                     navController = navController,
-                    //locationState,
-                    //weatherState = weatherState,
                     locationViewModel = locationViewModel,
                     currentWeatherViewModel = currentWeatherViewModel,
+                    nextFiveDaysWeatherViewModel = nextFiveDaysWeatherViewModel,
                     navigationViewModel = navigationViewModel
                 )
+                if (currentScreen == NavigationRouter.HomeScreen) { // the color of the snack bar id very dark
+                    LaunchedEffect(Unit) {
+                        currentWeatherViewModel.message.collect { message ->
+                            snackBarHostState.showSnackbar(
+                                message = message,
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                } else if(currentScreen == NavigationRouter.FavoriteScreen) {
+                    /*LaunchedEffect(Unit) {
+                        currentWeatherViewModel.message.collect { message -> // will need to sue the viewmodel of the favorite screen instead
+                            snackBarHostState.showSnackbar(
+                                message = message,
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }*/
+                }
+
             }
         }
         BackHandler(enabled = drawerState.isOpen) {
@@ -227,14 +249,13 @@ fun AppScaffold(
 @Composable
 fun NavigationHost(
     navController: NavController,
-    //locationState: MutableState<Location?>,
-    //weatherState: MutableState<CurrentWeatherResponse?>,
     currentWeatherViewModel: CurrentWeatherViewModel,
+    nextFiveDaysWeatherViewModel: NextFiveDaysWeatherViewModel,
     locationViewModel: LocationViewModel,
     navigationViewModel: NavigationViewModel
 ) {
-    val currentLocation by locationViewModel.currentLocation.observeAsState()
-    val currentWeatherState by currentWeatherViewModel.currentWeatherState.observeAsState()
+    val currentLocation by locationViewModel.currentLocation.collectAsStateWithLifecycle()
+    //val currentWeatherState by currentWeatherViewModel.currentWeatherState.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController as NavHostController,
@@ -242,17 +263,21 @@ fun NavigationHost(
     ) {
         composable<NavigationRouter.HomeScreen> {
             HomeScreen(
-               // locationState.value,
-                //locationViewModel.currentLocation.value,
                 location = currentLocation,
-                //weatherState.value,
-                currentWeatherResponse = currentWeatherState,
+                //currentWeatherResponse = currentWeatherState,
+                currentWeatherViewModel = currentWeatherViewModel,
+                nextFiveDaysWeatherViewModel = nextFiveDaysWeatherViewModel,
                 navigationViewModel = navigationViewModel
             )
         }
         composable<NavigationRouter.FavoriteScreen> { FavoriteScreen(navigationViewModel = navigationViewModel) }
         composable<NavigationRouter.AlertsScreen> { AlertsScreen(navigationViewModel = navigationViewModel) }
-        composable<NavigationRouter.SettingAlertScreen> { SettingAlertScreen(locationViewModel = locationViewModel, navigationViewModel = navigationViewModel)}
+        composable<NavigationRouter.SettingAlertScreen> {
+            SettingAlertScreen(
+                locationViewModel = locationViewModel,
+                navigationViewModel = navigationViewModel
+            )
+        }
         composable<NavigationRouter.SettingsScreen> { SettingsScreen(navigationViewModel = navigationViewModel) { } }
     }
 }
@@ -263,18 +288,19 @@ fun FloatingActionButtonUI(
     navigationViewModel: NavigationViewModel*/
     onFABClick: () -> Unit
 ) {
-   // val currentScreen = navigationViewModel.currentScreen.observeAsState()
+    // val currentScreen = navigationViewModel.currentScreen.observeAsState()
     FloatingActionButton(
-        onClick = { onFABClick()
-           /* {
-                when (currentScreen.value) {
-                    NavigationRouter.FavoriteScreen -> {} // show map to choose favorite place
-                    else ->
-                    navController.navigate(NavigationRouter.SettingAlertScreen)
-                //Log.d("FAB", "FAB clicked, navigating to SettingAlertScreen")
+        onClick = {
+            onFABClick()
+            /* {
+                 when (currentScreen.value) {
+                     NavigationRouter.FavoriteScreen -> {} // show map to choose favorite place
+                     else ->
+                     navController.navigate(NavigationRouter.SettingAlertScreen)
+                 //Log.d("FAB", "FAB clicked, navigating to SettingAlertScreen")
 
-                }
-            }*/
+                 }
+             }*/
         },
         containerColor = MaterialTheme.colorScheme.secondary
     ) {
@@ -284,3 +310,17 @@ fun FloatingActionButtonUI(
         )
     }
 }
+
+
+/*
+@Composable
+private fun DisplaySnackBarByScreen(viewmodel: ViewModel, message: String) {
+    LaunchedEffect(Unit) {
+        viewModel.message.collect { message ->
+            snackBarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
+}*/

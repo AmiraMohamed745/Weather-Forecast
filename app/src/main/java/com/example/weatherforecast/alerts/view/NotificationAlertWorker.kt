@@ -1,3 +1,4 @@
+/*
 package com.example.weatherforecast.alerts.view
 
 import android.app.Notification.DEFAULT_ALL
@@ -48,10 +49,12 @@ import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
+*/
 /*
 To Do:
 - Check for run time permissions for notifications
- */
+ *//*
+
 
 class NotificationAlertWorker(
     context: Context,
@@ -152,7 +155,8 @@ class NotificationAlertWorker(
 
     }
 
-    /*private fun scheduleNotification(delay: Long, data: Data) {
+    */
+/*private fun scheduleNotification(delay: Long, data: Data) {
         val notificationWork = OneTimeWorkRequest
             .Builder(NotificationAlertWorker::class.java)
             .setInitialDelay(delay, MILLISECONDS)
@@ -168,7 +172,8 @@ class NotificationAlertWorker(
                 notificationWork
             )
             .enqueue()
-    }*/
+    }*//*
+
 
     // Will probably need to define meaningful names for these and have them in the constants file
     companion object {
@@ -181,3 +186,4 @@ class NotificationAlertWorker(
 }
 
 
+*/

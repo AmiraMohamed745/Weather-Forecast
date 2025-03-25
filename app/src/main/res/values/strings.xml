@@ -24,4 +24,8 @@
     <string name="alert_title">Alert Title</string>
     <string name="e_g_alert_for_alex_trip">e.g., Alert for Alex trip</string>
     <string name="title_activity_alert_details_screen">AlertDetailsScreen</string>
+    <string name="rain_icon">Rain icon</string>
+    <string name="next_5_days">Next 5 Days</string>
+    <string name="n_a">N/A</string>
+    <string name="feels_like_with_temp_beneath_it">Feels like</string>
 </resources>
