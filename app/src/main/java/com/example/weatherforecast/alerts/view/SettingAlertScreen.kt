@@ -67,12 +67,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.example.weatherforecast.alerts.view.NotificationAlertWorker.Companion.NOTIFICATION_WORK
+//import com.example.weatherforecast.alerts.view.NotificationAlertWorker.Companion.NOTIFICATION_WORK
 import com.example.weatherforecast.model.Alert
 import com.example.weatherforecast.utils.location.LocationHelper
 import com.example.weatherforecast.utils.location.LocationViewModel
@@ -113,7 +114,8 @@ fun AlertSelections(locationViewModel: LocationViewModel) {
     val context = LocalContext.current
 
     val locationHelper = LocationHelper(context)
-    val currentLocation by locationViewModel.currentLocation.observeAsState()
+    //val currentLocation by locationViewModel.currentLocation.observeAsState()
+    val currentLocation by locationViewModel.currentLocation.collectAsStateWithLifecycle()
     //val currentAddress = locationHelper.getAddress(currentLocation.value)
     val currentAddress = locationHelper.getAddress(currentLocation)
 
@@ -211,7 +213,7 @@ fun AlertSelections(locationViewModel: LocationViewModel) {
             // schedule notification
             // insert alert to data base
             Log.d("SettingAlertScreen", "Calculated delay = $initialDelay ms") // gets printed
-            scheduleNotification(context = context, delay = initialDelay, data = inputData)
+            //scheduleNotification(context = context, delay = initialDelay, data = inputData)
         } else if (alertType == "Alarm") {
             //
         }
@@ -515,7 +517,7 @@ private fun convertMillisToDate(millis: Long): String {
     return formatter.format(Date(millis))
 }
 
-private fun scheduleNotification(context: Context, delay: Long, data: Data) {
+/*private fun scheduleNotification(context: Context, delay: Long, data: Data) {
     val notificationWork = OneTimeWorkRequest
         .Builder(NotificationAlertWorker::class.java)
         .setInitialDelay(delay, MILLISECONDS)
@@ -531,7 +533,7 @@ private fun scheduleNotification(context: Context, delay: Long, data: Data) {
             notificationWork
         )
         .enqueue()
-}
+}*/
 
 private fun calculateInitialDelay(dateMillis: Long?, time: Pair<Int, Int>?): Long {
 
