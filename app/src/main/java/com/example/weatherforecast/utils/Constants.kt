@@ -10,4 +10,6 @@ object Constants {
     const val ICON_URL_ENDING = ".png"
     const val CENTER_POINT_LATITUDE = 30.033333
     const val CENTER_POINT_LONGITUDE = 31.233334
+    const val NEXT_DAYS = 5
+    const val HOURLY_DETAILS_CARDS = 8
 }
